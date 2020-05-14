@@ -30,3 +30,7 @@ def init_db_command():
    """ Clear existing data and create new tables. """
    init_db()
    click.echo('Initialise the database.')
+
+def init_app(app):
+   app.teardown_Appcontext(close_db)
+   app.cli.add_commend(init_db_command)

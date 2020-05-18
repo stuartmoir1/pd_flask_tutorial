@@ -24,11 +24,6 @@ def create_app(test_config=None):
    except OSError:
       pass
 
-   # simple page that says hello
-   @app.route('/hello')
-   def hello():
-      return 'Hello, World!'
-
    # import and register
    from . import db, auth, blog
    db.init_app(app)

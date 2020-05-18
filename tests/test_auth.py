@@ -1,4 +1,4 @@
-import pytet
+import pytest
 from flask import g, session
 from flaskr.db import get_db
 
@@ -16,7 +16,7 @@ def test_register(client, app):
    # test db
    with app.app_context():
       assert get_db().execute(
-        'SELECT * FROM user WHERE usename=\'a\''  
+        "SELECT * FROM user WHERE username='a'"
       ).fetchone() is not None
 
 @pytest.mark.parametrize(
@@ -29,7 +29,7 @@ def test_register(client, app):
 def test_register_validate_input(client, username, password, message):
    response = client.post(
       'auth/register',
-      data={ 'username': username, 'password':, password }
+      data={ 'username': username, 'password': password }
    )
    # test errors
    assert message in response.data
@@ -48,11 +48,11 @@ def test_login(client, auth):
       assert session['user_id'] == 1
       assert g.user['username'] == 'test'
 
-@pytest.mark.parameterize(
+@pytest.mark.parametrize(
    ('username', 'password', 'message'),
    (
       ('a', 'test', b'Incorrect username.'),
-      ('test', 'a', b'Incorrect password')
+      ('test', 'a', b'Incorrect password.')
    ))
 def test_login_validate_input(auth, username, password, message):
    response = auth.login(username, password)

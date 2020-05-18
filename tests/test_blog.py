@@ -44,7 +44,8 @@ def test_create(client, auth, app):
    client.post('/create', data={ 'title': 'create', 'body': '' })
 
    with app.app_context():
-      assert get_db().execute('SELECT COUNT(id) FROM post').fetchone()[0] == 2
+      db = get_db()
+      assert db.execute('SELECT COUNT(id) FROM post').fetchone()[0] == 2
 
 def test_update(client, auth, app):
    auth.login()

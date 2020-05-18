@@ -19,6 +19,8 @@ def close_db(e=None):
    if db is not None:
       db.close()
 
+# functions that will run SQL commands
+
 def init_db():
    db = get_db()
    with current_app.open_resource('schema.sql') as f:
@@ -30,6 +32,8 @@ def init_db_command():
    """ Clear existing data and create new tables. """
    init_db()
    click.echo('Initialise the database.')
+
+# database registration
 
 def init_app(app):
    app.teardown_appcontext(close_db)

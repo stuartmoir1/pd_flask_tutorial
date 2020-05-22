@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}View "{{ post['title'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form>
+    <label for="title">Title</label>
+    <input name="title" id="title" value="{{ request.form['title'] or post['title'] }}" readonly>
+    <label for="body">Body</label>
+    <textarea name="body" id="body" readonly>{{ request.form['body'] or post['body'] }}</textarea>
+  </form>
+{% endblock %}

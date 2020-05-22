@@ -55,7 +55,7 @@ def get_post(id, check_author=True):
       'SELECT p.id, title, body, created, author_id, username'
       ' FROM post p JOIN user u ON p.author_id = u.id'
       ' WHERE p.id = ?',
-      (id,)
+      (id,) # comma reqd for single arg
    ).fetchone()
 
    if post is None:
@@ -99,6 +99,9 @@ def update(id):
 def delete(id):
    get_post(id)
    db = get_db()
-   db.execute('DELETE FROM post WHERE id = ?', (id,))
+   db.execute(
+      'DELETE FROM post WHERE id = ?',
+      (id,) # comma reqd for single arg
+   )
    db.commit()
    return redirect(url_for('blog.index'))

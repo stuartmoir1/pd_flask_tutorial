@@ -11,4 +11,7 @@
     <label for="body">Body</label>
     <textarea name="body" id="body" readonly>{{ request.form['body'] or post['body'] }}</textarea>
   </form>
+  <form action="{{ url_for('index') }}">
+    <input type="submit" value="Cancel">
+  </form>
 {% endblock %}

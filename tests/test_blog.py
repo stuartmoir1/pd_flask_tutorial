@@ -8,17 +8,41 @@ def test_index(client, auth):
    assert b'Log In' in response.data
    assert b'Register' in response.data
 
+   # not logged in - link not available
+   assert b'href="/1/update"' not in response.data
+   assert b'href="/1/view"' not in response.data
+
    # logged in...
    auth.login()
    response = client.get('/')
 
    # ...log out link available
    assert b'Log Out' in response.data
+
+   # ... update link available
    assert b'href="/1/update"' in response.data
+   assert b'href="/1/view"' not in response.data
+
    # ...user data available
    assert b'test title' in response.data
    assert b'by test on 2018-01-01' in response.data
    assert b'test\nbody' in response.data
+
+   # logged out...
+   auth.logout()
+   response = client.get('/')
+
+   # update and view links not available
+   assert b'href="/1/update"' not in response.data
+   assert b'href="/1/view"' not in response.data   
+   
+   # logged in as different user...
+   auth.login('other', 'other')
+   response = client.get('/')
+
+   # ...view link available
+   assert b'href="/1/update"' not in response.data
+   assert b'href="/1/view"' in response.data
 
 @pytest.mark.parametrize( 'path', ('/create', '/1/update', '/1/delete'))
 def test_login_required(client, path):
@@ -56,6 +80,14 @@ def test_create(client, auth, app):
       db = get_db()
       # post created
       assert db.execute('SELECT COUNT(id) FROM post').fetchone()[0] == 2
+
+def test_view(client, auth, app):
+   # view not logged in
+   assert client.get('/1/view').status_code == 200
+
+   # view logged in
+   auth.login()
+   assert client.get('/1/view').status_code == 200
 
 def test_update(client, auth, app):
    auth.login()

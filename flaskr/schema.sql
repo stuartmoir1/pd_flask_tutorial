@@ -21,5 +21,6 @@ CREATE TABLE vote (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   post_id INTEGER NOT NULL,
   author_id INTEGER NOT NULL,
-  FOREIGN KEY (post_id) REFERENCES post (id)
+  FOREIGN KEY (post_id) REFERENCES post (id),
+  FOREIGN KEY (author_id) REFERENCES user (id)
 );

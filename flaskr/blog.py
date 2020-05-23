@@ -18,8 +18,13 @@ bp = Blueprint('blog', __name__)
 def index():
    db = get_db()
    posts = db.execute(
-      'SELECT p.id, title, body, created, author_id, username'
-      ' FROM post p JOIN user u ON p.author_id = u.id'
+      'SELECT p.id, title, body, created, username,'
+      ' p.author_id as author_id,'
+      ' COUNT(v.post_id) as count'
+      ' FROM post p'
+      ' JOIN user u ON p.author_id = u.id'
+      ' LEFT JOIN vote v ON p.id = v.post_id'
+      ' GROUP BY p.id'
       ' ORDER BY created DESC'
    ).fetchall()
 

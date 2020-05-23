@@ -27,7 +27,7 @@
         </div>
       </header>
       <p class="body">{{ post['body'] }}</p>
-      <p>likes: </p>
+      <p>likes: {{ post['count'] }}</p>
     </article>
     {% if not loop.last %}
       <hr>

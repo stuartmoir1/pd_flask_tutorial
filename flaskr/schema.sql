@@ -16,5 +16,3 @@ CREATE TABLE post (
   likes INTEGER NOT NULL DEFAULT 0,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );
-
-

@@ -5,19 +5,17 @@
 {% endblock %}
 
 {% block content %}
-  <form>
+  <form method="post">
     <label for="title">Title</label>
     <input name="title" id="title" value="{{ request.form['title'] or post['title'] }}" readonly>
     <label for="body">Body</label>
     <textarea name="body" id="body" readonly>{{ request.form['body'] or post['body'] }}</textarea>
-    <label for="checkbox">Like</label>
-
+    <label for="like">Like</label>
     {% if vote %}
-      <input name="like" id="checkbox" type='checkbox' value='Like' checked>
+      <input name="like" id="like" type='checkbox' value="{{ request.form['like'] or vote['id'] }}" checked>
     {% else %}
-      <input name="like" id="checkbox" type='checkbox' value='Like'> 
+      <input name="like" id="like" type='checkbox' value="{{ request.form['like'] or vote['id'] }}">
     {% endif %}
-
     <input class="save" type="submit" value="Save">
   </form>
   <form action="{{ url_for('index') }}">

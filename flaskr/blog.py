@@ -141,13 +141,14 @@ def delete(id):
    db.commit()
    return redirect(url_for('blog.index'))
 
-@bp.route('/<int:id>/view', methods=('POST', ))
+@bp.route('/<int:id>/view', methods=('GET', 'POST'))
 def view(id):
    post = get_post(id, False)
    vote = True if get_vote(id) else False
 
    if request.method == 'POST':
       like = True if 'like' in request.form else False
+      db = get_db()
 
       if like:
          # create vote if it does not exist

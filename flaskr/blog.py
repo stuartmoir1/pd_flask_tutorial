@@ -80,15 +80,61 @@ def get_vote(post_id):
 
    return vote
 
+# @bp.route('/<int:id>/update', methods=('GET', 'POST'))
+# @login_required
+# def update(id):
+#    post = get_post(id)
+#    vote = True if get_vote(id) else False
+
+#    print('VOTE')
+#    print(vote)
+   
+#    if request.method == 'POST':
+#       title = request.form['title']
+#       body = request.form['body']
+#       like = True if 'like' in request.form else False
+#       error = None
+
+#       if not title:
+#          error = 'Title is required.'
+
+#       if error is not None:
+#          flash(error)
+#       else:
+#          db = get_db()
+#          db.execute(
+#             'UPDATE post SET title = ?, body = ?'
+#             ' WHERE id = ?',
+#             (title, body, id)
+#          )
+
+#          if like:
+#             # create vote if it does not exist
+#             if not vote:
+#                db.execute(
+#                   'INSERT INTO vote (post_id, author_id)'
+#                   ' VALUES (?, ?) ',
+#                   (id, g.user['id'])
+#                )
+#          else:
+#             # delete vote if it exists
+#             if vote:
+#                db.execute(
+#                   'DELETE FROM vote WHERE post_id = ? AND author_id = ?',
+#                   (id, g.user['id'])
+#                )
+
+#          db.commit()
+#          return redirect(url_for('blog.index'))
+
+#    return render_template('blog/update.html', post=post, vote=vote)
+
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 def update(id):
    post = get_post(id)
    vote = True if get_vote(id) else False
 
-   print('VOTE')
-   print(vote)
-   
    if request.method == 'POST':
       title = request.form['title']
       body = request.form['body']
@@ -107,23 +153,7 @@ def update(id):
             ' WHERE id = ?',
             (title, body, id)
          )
-
-         if like:
-            # create vote if it does not exist
-            if not vote:
-               db.execute(
-                  'INSERT INTO vote (post_id, author_id)'
-                  ' VALUES (?, ?) ',
-                  (id, g.user['id'])
-               )
-         else:
-            # delete vote if it exists
-            if vote:
-               db.execute(
-                  'DELETE FROM vote WHERE post_id = ? AND author_id = ?',
-                  (id, g.user['id'])
-               )
-
+         set_vote(id, vote, db) # db passed by reference
          db.commit()
          return redirect(url_for('blog.index'))
 
@@ -141,32 +171,69 @@ def delete(id):
    db.commit()
    return redirect(url_for('blog.index'))
 
+# @bp.route('/<int:id>/view', methods=('GET', 'POST'))
+# def view(id):
+#    post = get_post(id, False)
+#    vote = True if get_vote(id) else False
+
+#    if request.method == 'POST':
+#       like = True if 'like' in request.form else False
+#       db = get_db()
+
+#       if like:
+#          # create vote if it does not exist
+#          if not vote:
+#             db.execute(
+#                'INSERT INTO vote (post_id, author_id)'
+#                ' VALUES (?, ?) ',
+#                (id, g.user['id'])
+#             )
+#       else:
+#          # delete vote if it exists
+#          if vote:
+#             db.execute(
+#                'DELETE FROM vote WHERE post_id = ? AND author_id = ?',
+#                (id, g.user['id'])
+#             )
+
+#       db.commit()
+#       return redirect(url_for('blog.index'))
+
+#    return render_template('blog/view.html', post=post, vote=vote)
+
+def set_vote(post_id, vote, db):
+   like = True if 'like' in request.form else False
+
+   if like:
+      # create vote if it does not exist
+      if not vote:
+         db.execute(
+            'INSERT INTO vote (post_id, author_id)'
+            ' VALUES (?, ?) ',
+            (post_id, g.user['id'])
+         )
+         return True
+   else:
+      # delete vote if it exists
+      if vote:
+         db.execute(
+            'DELETE FROM vote WHERE post_id = ? AND author_id = ?',
+            (post_id, g.user['id'])
+         )
+         return True
+
+   return False
+
 @bp.route('/<int:id>/view', methods=('GET', 'POST'))
 def view(id):
    post = get_post(id, False)
    vote = True if get_vote(id) else False
 
    if request.method == 'POST':
-      like = True if 'like' in request.form else False
       db = get_db()
-
-      if like:
-         # create vote if it does not exist
-         if not vote:
-            db.execute(
-               'INSERT INTO vote (post_id, author_id)'
-               ' VALUES (?, ?) ',
-               (id, g.user['id'])
-            )
-      else:
-         # delete vote if it exists
-         if vote:
-            db.execute(
-               'DELETE FROM vote WHERE post_id = ? AND author_id = ?',
-               (id, g.user['id'])
-            )
-
-      db.commit()
+      vote_changed = set_vote(id, vote, db) # db passed by reference
+      if vote_changed:
+         db.commit()
       return redirect(url_for('blog.index'))
 
    return render_template('blog/view.html', post=post, vote=vote)

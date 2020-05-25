@@ -84,12 +84,15 @@ def get_vote(post_id):
 @login_required
 def update(id):
    post = get_post(id)
-   vote = get_vote(id)
+   vote = True if get_vote(id) else False
+
+   print('VOTE')
+   print(vote)
    
    if request.method == 'POST':
       title = request.form['title']
       body = request.form['body']
-      like = request.form['like']
+      like = True if 'like' in request.form else False
       error = None
 
       if not title:
@@ -117,7 +120,7 @@ def update(id):
             # delete vote if it exists
             if vote:
                db.execute(
-                  'DELETE FROM votes WHERE post_id = ? AND author_id = ?',
+                  'DELETE FROM vote WHERE post_id = ? AND author_id = ?',
                   (id, g.user['id'])
                )
 
@@ -138,8 +141,31 @@ def delete(id):
    db.commit()
    return redirect(url_for('blog.index'))
 
-@bp.route('/<int:id>/view')
+@bp.route('/<int:id>/view', methods=('POST', ))
 def view(id):
    post = get_post(id, False)
-   vote = get_vote(id)
+   vote = True if get_vote(id) else False
+
+   if request.method == 'POST':
+      like = True if 'like' in request.form else False
+
+      if like:
+         # create vote if it does not exist
+         if not vote:
+            db.execute(
+               'INSERT INTO vote (post_id, author_id)'
+               ' VALUES (?, ?) ',
+               (id, g.user['id'])
+            )
+      else:
+         # delete vote if it exists
+         if vote:
+            db.execute(
+               'DELETE FROM vote WHERE post_id = ? AND author_id = ?',
+               (id, g.user['id'])
+            )
+
+      db.commit()
+      return redirect(url_for('blog.index'))
+
    return render_template('blog/view.html', post=post, vote=vote)

@@ -10,6 +10,12 @@
     <input name="title" id="title" value="{{ request.form['title'] or post['title'] }}" required>
     <label for="body">Body</label>
     <textarea name="body" id="body">{{ request.form['body'] or post['body'] }}</textarea>
+    <label for="checkbox">Like</label>
+    {% if vote %}
+      <input name="like" id="checkbox" type='checkbox' value='Like' checked>
+    {% else %}
+      <input name="like" id="checkbox" type='checkbox' value='Like'> 
+    {% endif %}
     <input class="save" type="submit" value="Save">
   </form>
   <form action="{{ url_for('index') }}">

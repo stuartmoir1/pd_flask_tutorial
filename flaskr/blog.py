@@ -72,14 +72,24 @@ def get_post(id, check_author=True):
 
    return post
 
+def get_vote(post_id):
+   vote = get_db().execute(
+      'SELECT * FROM vote WHERE post_id = ? AND author_id = ?',
+      (post_id, g.user['id'])
+   ).fetchone()
+
+   return vote
+
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 def update(id):
    post = get_post(id)
+   vote = get_vote(id)
    
    if request.method == 'POST':
       title = request.form['title']
       body = request.form['body']
+      like = request.form['like']
       error = None
 
       if not title:
@@ -94,10 +104,27 @@ def update(id):
             ' WHERE id = ?',
             (title, body, id)
          )
+
+         if like:
+            # create vote if it does not exist
+            if not vote:
+               db.execute(
+                  'INSERT INTO vote (post_id, author_id)'
+                  ' VALUES (?, ?) ',
+                  (id, g.user['id'])
+               )
+         else:
+            # delete vote if it exists
+            if vote:
+               db.execute(
+                  'DELETE FROM votes WHERE post_id = ? AND author_id = ?',
+                  (id, g.user['id'])
+               )
+
          db.commit()
          return redirect(url_for('blog.index'))
 
-   return render_template('blog/update.html', post=post)
+   return render_template('blog/update.html', post=post, vote=vote)
 
 @bp.route('/<int:id>/delete', methods=('POST', ))
 @login_required
@@ -114,4 +141,5 @@ def delete(id):
 @bp.route('/<int:id>/view')
 def view(id):
    post = get_post(id, False)
-   return render_template('blog/view.html', post=post)
+   vote = get_vote(id)
+   return render_template('blog/view.html', post=post, vote=vote)
